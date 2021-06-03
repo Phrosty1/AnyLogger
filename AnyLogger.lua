@@ -58,6 +58,28 @@ local function LogAnyEvent(eventid, ...)
 end
 ---
 
+local arrMethodValues = {}
+local function MonitorForChanges(someMethod, methodLuaName)
+   if methodLuaName == nil then methodLuaName = tostring(someMethod) end
+   arrMethodValues[methodLuaName] = {}
+   EVENT_MANAGER:RegisterForUpdate(AnyLogger.name..methodLuaName, 10, function()
+         local newValues = {someMethod()}
+         local prvValues = arrMethodValues[methodLuaName]
+         local isMatch = true
+         for i,v in ipairs(newValues) do
+            if prvValues[i] ~= v then isMatch = false break end
+         end
+         --if isMatch then -- recycle should not be needed since recent call should always have the max arguments
+         --   for i,v in ipairs(prvValues) do
+         --      if newValues[i] ~= v then isMatch = false break end
+         --   end
+         --end
+         if not isMatch then
+            arrMethodValues[methodLuaName] = newValues
+            LogAnyArr(methodLuaName, newValues)
+         end
+      end)
+end
 
 function AnyLogger:Initialize()
    -- AnyLoggerSavedVariables = ZO_SavedVars:NewAccountWide("AnyLoggerSavedVariables", 1, nil, {})
@@ -68,6 +90,11 @@ function AnyLogger:Initialize()
    for k,v in pairs(EventsForLogging) do
       EVENT_MANAGER:RegisterForEvent(AnyLogger.name.."LogAnyEvent", k, LogAnyEvent)
    end
+
+   MonitorForChanges(GetGameCameraInteractableActionInfoLoc, "GetGameCameraInteractableActionInfoLoc")
+
+	--ZO_PreHookHandler(RETICLE.interact, "OnEffectivelyShown", AHKVacuum.OnReticleSet)
+	--ZO_PreHookHandler(RETICLE.interact, "OnHide", AHKVacuum.OnReticleSet)
 end
 
 -- Then we create an event handler function which will be called when the "addon loaded" event
@@ -78,3 +105,5 @@ end
 
 -- Finally, we'll register our event handler function to be called when the proper event occurs.
 EVENT_MANAGER:RegisterForEvent(AnyLogger.name, EVENT_ADD_ON_LOADED, AnyLogger.OnAddOnLoaded)
+
+
