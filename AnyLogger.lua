@@ -33,7 +33,7 @@ local function GetSlotCooldownCSV()
 end
 local function LogAnyArr(title, args)
    local strArgs = (msBaseTime+GetGameTimeMilliseconds()) .. ";" .. title
-   for i,v in ipairs(args) do
+   for i,v in pairs(args) do
       strArgs = strArgs .. ";" .. tostring(v)
    end
    --if AnyLoggerSavedVariables.logAny == nil then AnyLoggerSavedVariables.logAny = {} end
@@ -58,27 +58,16 @@ local function LogAnyEvent(eventid, ...)
 end
 ---
 
-local arrMethodValues = {}
-local function MonitorForChanges(someMethod, methodLuaName)
-   if methodLuaName == nil then methodLuaName = tostring(someMethod) end
-   arrMethodValues[methodLuaName] = {}
-   EVENT_MANAGER:RegisterForUpdate(AnyLogger.name..methodLuaName, 10, function()
-         local newValues = {someMethod()}
-         local prvValues = arrMethodValues[methodLuaName]
-         local isMatch = true
-         for i,v in ipairs(newValues) do
-            if prvValues[i] ~= v then isMatch = false break end
-         end
-         --if isMatch then -- recycle should not be needed since recent call should always have the max arguments
-         --   for i,v in ipairs(prvValues) do
-         --      if newValues[i] ~= v then isMatch = false break end
-         --   end
-         --end
-         if not isMatch then
-            arrMethodValues[methodLuaName] = newValues
-            LogAnyArr(methodLuaName, newValues)
-         end
-      end)
+local prvAction, prvInteractableName, prvInteractBlocked, prvIsOwned, prvAdditionalInfo, prvContextualInfo, prvContextualLink, prvIsCriminalInteract
+local curAction, curInteractableName, curInteractBlocked, curIsOwned, curAdditionalInfo, curContextualInfo, curContextualLink, curIsCriminalInteract
+local callCnt = 0
+local function OnReticleSet()
+   callCnt = callCnt + 1
+	curAction, curInteractableName, curInteractBlocked, curIsOwned, curAdditionalInfo, curContextualInfo, curContextualLink, curIsCriminalInteract = GetGameCameraInteractableActionInfo()
+	if curAction~=prvAction or curInteractableName~=prvInteractableName or curInteractBlocked~=prvInteractBlocked or curIsOwned~=prvIsOwned or curAdditionalInfo~=prvAdditionalInfo or curContextualInfo~=prvContextualInfo or curContextualLink~=prvContextualLink or curIsCriminalInteract~=prvIsCriminalInteract then 
+		prvAction, prvInteractableName, prvInteractBlocked, prvIsOwned, prvAdditionalInfo, prvContextualInfo, prvContextualLink, prvIsCriminalInteract = curAction, curInteractableName, curInteractBlocked, curIsOwned, curAdditionalInfo, curContextualInfo, curContextualLink, curIsCriminalInteract
+      LogAnyArr("OnReticleSet", {curAction, curInteractableName, curInteractBlocked, curIsOwned, curAdditionalInfo, curContextualInfo, curContextualLink, curIsCriminalInteract, callCnt})
+	end
 end
 
 function AnyLogger:Initialize()
@@ -88,13 +77,43 @@ function AnyLogger:Initialize()
    --if AnyLoggerSavedVariables.logAny == nil then AnyLoggerSavedVariables.logAny = {} end
 
    for k,v in pairs(EventsForLogging) do
-      EVENT_MANAGER:RegisterForEvent(AnyLogger.name.."LogAnyEvent", k, LogAnyEvent)
+      EVENT_MANAGER:RegisterForEvent(AnyLogger.name, k, LogAnyEvent)
    end
 
-   MonitorForChanges(GetGameCameraInteractableActionInfoLoc, "GetGameCameraInteractableActionInfoLoc")
+	ZO_PreHookHandler(RETICLE.interact, "OnEffectivelyShown", OnReticleSet)
+	ZO_PreHookHandler(RETICLE.interact, "OnHide", OnReticleSet)
 
-	--ZO_PreHookHandler(RETICLE.interact, "OnEffectivelyShown", AHKVacuum.OnReticleSet)
-	--ZO_PreHookHandler(RETICLE.interact, "OnHide", AHKVacuum.OnReticleSet)
+   --EVENT_MANAGER:RegisterForUpdate(AnyLogger.name.."OnReticleSet", 5, OnReticleSet)
+
+   local function dump(o)
+      if type(o) == 'table' then
+         local s = '{ '
+         for k,v in pairs(o) do
+            s = s .. '['..k..'] = ' .. dump(v) .. ','
+         end
+         return s .. '} '
+      elseif type(o) == 'userdata' then
+         local s = '{ '
+         for k,v in pairs(getmetatable(RETICLE.interact).__index) do
+            s = s .. '['..k..'] = ' .. dump(v) .. ','
+         end
+         return s .. '} '
+      else
+         return tostring(o)
+      end
+   end
+
+   EVENT_MANAGER:RegisterForEvent(AnyLogger.name.."SHUTDOWN", EVENT_PLAYER_DEACTIVATED, function()
+         AnyLoggerSavedVariables["dRETICLE.interact"] = string.sub(dump(RETICLE.interact), 1, 1000)
+         AnyLoggerSavedVariables["dRETICLE"] = string.sub(dump(RETICLE), 1, 1000)
+         --AnyLoggerSavedVariables["RETICLE.interact"] = RETICLE.interact
+         --AnyLoggerSavedVariables["RETICLE"] = RETICLE
+         AnyLoggerSavedVariables["gmRETICLE.interact"] = getmetatable(RETICLE.interact)
+         AnyLoggerSavedVariables["tRETICLE.interact"] = type(RETICLE.interact)
+
+      end)
+
+
 end
 
 -- Then we create an event handler function which will be called when the "addon loaded" event
@@ -105,5 +124,4 @@ end
 
 -- Finally, we'll register our event handler function to be called when the proper event occurs.
 EVENT_MANAGER:RegisterForEvent(AnyLogger.name, EVENT_ADD_ON_LOADED, AnyLogger.OnAddOnLoaded)
-
 
