@@ -1,3 +1,4 @@
+-- http://www.lua.org/manual/5.2/manual.html#3.4.10
 AnyLogger = {}
 AnyLogger.name = "AnyLogger"
 AnyLoggerSavedVariables = AnyLoggerSavedVariables or {}
@@ -17,6 +18,13 @@ local function Dump(o)
       end
       return s .. "}"
    elseif type(o) == "string" then return o -- "'"..o.."'"
+   elseif type(o) == 'userdata' then
+      local s = "{"
+      for k,v in pairs(getmetatable(o).__index) do
+         if type(k) ~= "number" then k = "'"..k.."'" end
+         s = s .. "["..k.."]=" .. Dump(v) .. ","
+      end
+      return s .. "}"
    else return tostring(o) end
 end
 AnyLogger.Dump = Dump
