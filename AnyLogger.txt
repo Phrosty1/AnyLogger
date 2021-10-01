@@ -1,6 +1,6 @@
 ## Title: AnyLogger
 ## Author: Phrosty1
-## APIVersion: 100035 100036
+## APIVersion: 101031
 ## AddOnVersion: 001
 ## Version: 0.01
 ## DependsOn: LibPixelControl
