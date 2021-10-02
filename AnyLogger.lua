@@ -1,4 +1,4 @@
--- http://www.lua.org/manual/5.2/manual.html#3.4.10
+---@diagnostic disable: undefined-global
 AnyLogger = {}
 AnyLogger.name = "AnyLogger"
 AnyLoggerSavedVariables = AnyLoggerSavedVariables or {}
@@ -109,17 +109,21 @@ end
 local GetGameCameraInteractableActionInfo = GetGameCameraInteractableActionInfo
 local CanInteractWithItem = CanInteractWithItem
 local IsInteracting = IsInteracting
-local prvAction, prvInteractableName, prvInteractBlocked, prvIsOwned, prvAdditionalInfo, prvContextualInfo, prvContextualLink, prvIsCriminalInteract
-local curAction, curInteractableName, curInteractBlocked, curIsOwned, curAdditionalInfo, curContextualInfo, curContextualLink, curIsCriminalInteract
+local prvAction, prvInteractableName, prvInteractBlocked, prvIsOwned, prvAdditionalInfo, prvContextualInfo, prvContextualLink, prvIsCriminalInteract, prvCanInteractWithItem, prvIsInteracting
+local curAction, curInteractableName, curInteractBlocked, curIsOwned, curAdditionalInfo, curContextualInfo, curContextualLink, curIsCriminalInteract, curCanInteractWithItem, curIsInteracting
+function AnyLogger.OnReticleChange(curAction, curInteractableName, curInteractBlocked, curIsOwned, curAdditionalInfo, curContextualInfo, curContextualLink, curIsCriminalInteract, curCanInteractWithItem, curIsInteracting)
+   prvAction, prvInteractableName, prvInteractBlocked, prvIsOwned, prvAdditionalInfo, prvContextualInfo, prvContextualLink, prvIsCriminalInteract, prvCanInteractWithItem, prvIsInteracting = curAction, curInteractableName, curInteractBlocked, curIsOwned, curAdditionalInfo, curContextualInfo, curContextualLink, curIsCriminalInteract, curCanInteractWithItem, curIsInteracting
+   LogAnyTxt("OnReticleChange", curAction, curInteractableName, Ternary(curInteractBlocked, "Blocked", "NotBlocked"), Ternary(curIsOwned, "Owned", "NotOwned"), curAdditionalInfo, curContextualInfo, curContextualLink, Ternary(curIsCriminalInteract, "Crime", "Legal"), Ternary(curCanInteractWithItem, "CanInteract", "CanNotInteract"), Ternary(curIsInteracting, "IsInteracting", "IsNotInteracting"))
+end
 local function OnReticleSet()
 	curAction, curInteractableName, curInteractBlocked, curIsOwned, curAdditionalInfo, curContextualInfo, curContextualLink, curIsCriminalInteract = GetGameCameraInteractableActionInfo()
-	if curAction~=prvAction or curInteractableName~=prvInteractableName or curInteractBlocked~=prvInteractBlocked or curIsOwned~=prvIsOwned or curAdditionalInfo~=prvAdditionalInfo or curContextualInfo~=prvContextualInfo or curContextualLink~=prvContextualLink or curIsCriminalInteract~=prvIsCriminalInteract then 
-		prvAction, prvInteractableName, prvInteractBlocked, prvIsOwned, prvAdditionalInfo, prvContextualInfo, prvContextualLink, prvIsCriminalInteract = curAction, curInteractableName, curInteractBlocked, curIsOwned, curAdditionalInfo, curContextualInfo, curContextualLink, curIsCriminalInteract
-      LogAnyTxt("OnReticleSet", curAction, curInteractableName, Ternary(curInteractBlocked, "Blocked", "NotBlocked"), Ternary(curIsOwned, "Owned", "NotOwned"), curAdditionalInfo, curContextualInfo, curContextualLink, Ternary(curIsCriminalInteract, "Crime", "Legal"), Ternary(CanInteractWithItem(), "CanInteract", "CanNotInteract"), Ternary(IsInteracting(), "IsInteracting", "IsNotInteracting"))
+   curCanInteractWithItem = CanInteractWithItem()
+   curIsInteracting = IsInteracting()
+	if curAction~=prvAction or curInteractableName~=prvInteractableName or curInteractBlocked~=prvInteractBlocked or curIsOwned~=prvIsOwned or curAdditionalInfo~=prvAdditionalInfo or curContextualInfo~=prvContextualInfo or curContextualLink~=prvContextualLink or curIsCriminalInteract~=prvIsCriminalInteract or curCanInteractWithItem~=prvCanInteractWithItem or curIsInteracting~=prvIsInteracting then
+      AnyLogger.OnReticleChange(curAction, curInteractableName, curInteractBlocked, curIsOwned, curAdditionalInfo, curContextualInfo, curContextualLink, curIsCriminalInteract, curCanInteractWithItem, curIsInteracting)
 	end
 end
 
-local fishingVar = nil
 function AnyLogger:Initialize()
    --AnyLoggerSavedVariables = ZO_SavedVars:NewAccountWide("AnyLoggerSavedVariables", 1, nil, {})
    AnyLoggerSavedVariables = {} -- Starts fresh each time
@@ -129,8 +133,9 @@ function AnyLogger:Initialize()
    for k,v in pairs(EventsForLogging) do
       EVENT_MANAGER:RegisterForEvent(AnyLogger.name, k, LogAnyEvent)
    end
-	ZO_PreHookHandler(RETICLE.interact, "OnEffectivelyShown", OnReticleSet)
-	ZO_PreHookHandler(RETICLE.interact, "OnHide", OnReticleSet)
+	--ZO_PreHookHandler(RETICLE.interact, "OnEffectivelyShown", OnReticleSet)
+	--ZO_PreHookHandler(RETICLE.interact, "OnHide", OnReticleSet)
+   EVENT_MANAGER:RegisterForUpdate(AnyLogger.name, 10, OnReticleSet)
 end
 
 -- Then we create an event handler function which will be called when the "addon loaded" event
@@ -141,4 +146,3 @@ end
 
 -- Finally, we'll register our event handler function to be called when the proper event occurs.
 EVENT_MANAGER:RegisterForEvent(AnyLogger.name, EVENT_ADD_ON_LOADED, AnyLogger.OnAddOnLoaded)
-
