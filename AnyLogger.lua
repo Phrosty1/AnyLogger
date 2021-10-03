@@ -1,8 +1,7 @@
 ---@diagnostic disable: undefined-global
 AnyLogger = {}
 AnyLogger.name = "AnyLogger"
-AnyLoggerSavedVariables = AnyLoggerSavedVariables or {}
-local characterLog = {}
+AnyLoggerSavedVariables = {}
 local GetTimeStamp = GetTimeStamp
 local GetGameTimeMilliseconds = GetGameTimeMilliseconds
 local msBaseTime = (1000*GetTimeStamp())-GetGameTimeMilliseconds()
@@ -69,8 +68,8 @@ local function LogBase(title, ...)
    for i = 1,select("#", ...) do -- pairs and ipairs are giving trouble with nils
       strArgs = strArgs .. ";" .. Dump(select(i, ...))
    end
-   if string.len(strArgs) >= 2000 then table.insert(characterLog, string.sub(strArgs, 1, 1999))
-   else table.insert(characterLog, strArgs) end
+   if string.len(strArgs) >= 2000 then table.insert(AnyLoggerSavedVariables, string.sub(strArgs, 1, 1999))
+   else table.insert(AnyLoggerSavedVariables, strArgs) end
 end
 local function LogAnyArr(title, args)
    local strArgs = ""
@@ -126,15 +125,9 @@ end
 
 function AnyLogger:Initialize()
    --AnyLoggerSavedVariables = ZO_SavedVars:NewAccountWide("AnyLoggerSavedVariables", 1, nil, {})
-   AnyLoggerSavedVariables = {} -- Starts fresh each time
-
-   AnyLoggerSavedVariables[playerName] = characterLog
-
    for k,v in pairs(EventsForLogging) do
       EVENT_MANAGER:RegisterForEvent(AnyLogger.name, k, LogAnyEvent)
    end
-	--ZO_PreHookHandler(RETICLE.interact, "OnEffectivelyShown", OnReticleSet)
-	--ZO_PreHookHandler(RETICLE.interact, "OnHide", OnReticleSet)
    EVENT_MANAGER:RegisterForUpdate(AnyLogger.name, 10, OnReticleSet)
 end
 
