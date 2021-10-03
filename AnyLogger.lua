@@ -1,7 +1,7 @@
 ---@diagnostic disable: undefined-global
 AnyLogger = {}
 AnyLogger.name = "AnyLogger"
-AnyLoggerSavedVariables = {}
+AnyLoggerSavedVariables = AnyLoggerSavedVariables or {}
 local GetTimeStamp = GetTimeStamp
 local GetGameTimeMilliseconds = GetGameTimeMilliseconds
 local msBaseTime = (1000*GetTimeStamp())-GetGameTimeMilliseconds()
@@ -125,6 +125,7 @@ end
 
 function AnyLogger:Initialize()
    --AnyLoggerSavedVariables = ZO_SavedVars:NewAccountWide("AnyLoggerSavedVariables", 1, nil, {})
+   AnyLoggerSavedVariables = {}
    for k,v in pairs(EventsForLogging) do
       EVENT_MANAGER:RegisterForEvent(AnyLogger.name, k, LogAnyEvent)
    end
