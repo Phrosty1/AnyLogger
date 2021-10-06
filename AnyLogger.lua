@@ -90,18 +90,21 @@ local function GetSlotCooldownCSV()
    end
    return str
 end
-local function LogAnyEvent(eventid, ...)
-   local eventname = EventsForLogging[eventid]
-   if eventid == EVENT_ACTION_UPDATE_COOLDOWNS then
-      LogBase(eventname, ..., GetSlotCooldownCSV())
-   elseif eventid == EVENT_ACTION_SLOT_ABILITY_USED then
-      LogBase(eventname, ..., GetSlotCooldownCSV())
-   elseif eventid == EVENT_LOOT_RECEIVED then
-      local args = {...}
-      LogBase(eventname, ..., GetItemLinkName(args[2])) -- Tommy will notice that this bloats the logs and strictly isn't needed. This is a temporary comfort for me.
-   else
-      LogBase(eventname, ...)
-   end
+--local function LogAnyEvent(eventid, ...)
+--   local eventname = EventsForLogging[eventid]
+--   if eventid == EVENT_ACTION_UPDATE_COOLDOWNS then
+--      LogBase(eventname, ..., GetSlotCooldownCSV())
+--   elseif eventid == EVENT_ACTION_SLOT_ABILITY_USED then
+--      LogBase(eventname, ..., GetSlotCooldownCSV())
+--   elseif eventid == EVENT_LOOT_RECEIVED then
+--      local args = {...}
+--      LogBase(eventname, ..., GetItemLinkName(args[2]))
+--   else
+--      LogBase(eventname, ...)
+--   end
+--end
+local function LogAnyEvent(eventid, ...) -- create separate events for handling GetSlotCooldownCSV data
+   LogBase(EventsForLogging[eventid], ...)
 end
 ---
 
