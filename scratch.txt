@@ -172,3 +172,20 @@ function AnyLogger:OnEnemyEncountered() -- SLIM_BUILD
    probably unique (ZONE, creature type)
    GetUnitDifficulty("reticleover")
 end
+
+
+
+
+
+["GetUnitZoneIndex"] = "10",
+["GetUnitName"] = "Mabrigash Shade",
+["GetUnitZone"] = "Deshaan",
+["GetUnitDifficulty"] = "4",
+
+["GetUnitType"] = "2",
+["IsUnitActivelyEngaged"] = "false",
+["IsUnitAttackable"] = "true",
+
+* GetUnitPower(*string* _unitTag_, *[CombatMechanicType|#CombatMechanicType]* _powerType_)
+** _Returns:_ *integer* _current_, *integer* _max_, *integer* _effectiveMax_
+
