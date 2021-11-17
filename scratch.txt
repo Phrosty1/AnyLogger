@@ -167,25 +167,28 @@ end
 EVENT_MANAGER:RegisterForEvent(AHKRapidFire.name, EVENT_PLAYER_COMBAT_STATE, AnyLogger.OnCombatInit)
 
 function AnyLogger:OnEnemyEncountered() -- SLIM_BUILD
-      -- BAG_WORN
-      -- * GetItemId(*[Bag|#Bag]* _bagId_, *integer* _slotIndex_) ** _Returns:_ *integer* _itemId_
-   probably unique (ZONE, creature type)
-   GetUnitDifficulty("reticleover")
+   local unitTag = 'reticleover'
+   local function GetPower(typ)
+      -- * GetUnitPower(*string* _unitTag_, *[CombatMechanicType|#CombatMechanicType]* _powerType_)
+      -- ** _Returns:_ *integer* _current_, *integer* _max_, *integer* _effectiveMax_
+      local current, max, effMax = GetUnitPower(unitTag, typ)
+      return effMax
+   end
+   Name = GetUnitName('reticleover')
+   ZoneIndex = GetUnitZoneIndex('reticleover')
+   ZoneName = GetUnitZone('reticleover')
+   Difficulty = GetUnitDifficulty('reticleover')
+   Type = GetUnitType('reticleover')
+   ActivelyEngaged = IsUnitActivelyEngaged('reticleover')
+   Attackable = IsUnitAttackable('reticleover')
+   MaxDaedric = GetPower(POWERTYPE_DAEDRIC)
+   MaxHealth = GetPower(POWERTYPE_HEALTH)
+   MaxHealthBonus = GetPower(POWERTYPE_HEALTH_BONUS)
+   MaxInvalid = GetPower(POWERTYPE_INVALID)
+   MaxMagicka = GetPower(POWERTYPE_MAGICKA)
+   MaxMountStamina = GetPower(POWERTYPE_MOUNT_STAMINA)
+   MaxStamina = GetPower(POWERTYPE_STAMINA)
+   MaxUltimate = GetPower(POWERTYPE_ULTIMATE)
+   MaxWerewolf = GetPower(POWERTYPE_WEREWOLF)
 end
-
-
-
-
-
-["GetUnitZoneIndex"] = "10",
-["GetUnitName"] = "Mabrigash Shade",
-["GetUnitZone"] = "Deshaan",
-["GetUnitDifficulty"] = "4",
-
-["GetUnitType"] = "2",
-["IsUnitActivelyEngaged"] = "false",
-["IsUnitAttackable"] = "true",
-
-* GetUnitPower(*string* _unitTag_, *[CombatMechanicType|#CombatMechanicType]* _powerType_)
-** _Returns:_ *integer* _current_, *integer* _max_, *integer* _effectiveMax_
 
