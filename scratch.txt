@@ -164,55 +164,99 @@ function AnyAltLogger:OnCombatInit() -- SLIM_BUILD
       --* GetItemLink(*[Bag|#Bag]* _bagId_, *integer* _slotIndex_, *[LinkStyle|#LinkStyle]* _linkStyle_) ** _Returns:_ *string* _link_
       --* GetItemLinkSetInfo(*string* _itemLink_, *bool* _equipped_) ** _Returns:_ *bool* _hasSet_, *string* _setName_, *integer* _numBonuses_, *integer* _numNormalEquipped_, *integer* _maxEquipped_, *integer* _setId_, *integer* _numPerfectedEquipped_
 end
-
-
 EVENT_MANAGER:RegisterForEvent(AnyAltLogger.name, EVENT_PLAYER_COMBAT_STATE, AnyAltLogger.OnCombatInit)
+EVENT_MANAGER:RegisterForEvent(AnyAltLogger.name, EVENT_PLAYER_ACTIVATED, AnyAltLogger.OnCombatInit)
+
 
 local reticleTargets = {}
 local reticleover = 'reticleover'
 local function GetReticleEffMaxPower(typ)
-   local _, _, effMax = GetUnitPower(reticleover, typ) -- * GetUnitPower(*string* _unitTag_, *[CombatMechanicType|#CombatMechanicType]* _powerType_) ** _Returns:_ *integer* _current_, *integer* _max_, *integer* _effectiveMax_
-   return effMax
+   --local _, _, effMax = GetUnitPower(reticleover, typ) -- * GetUnitPower(*string* _unitTag_, *[CombatMechanicType|#CombatMechanicType]* _powerType_) ** _Returns:_ *integer* _current_, *integer* _max_, *integer* _effectiveMax_
+   --return effMax
+   local cur, mx, effMax = GetUnitPower(reticleover, typ) -- * GetUnitPower(*string* _unitTag_, *[CombatMechanicType|#CombatMechanicType]* _powerType_) ** _Returns:_ *integer* _current_, *integer* _max_, *integer* _effectiveMax_
+   return tostring(cur)..'|'..tostring(mx)..'|'..tostring(effMax)
 end
+-- h5. ItemTraitType -- GetString("SI_ITEMTRAITTYPE",GetItemTrait(bagId,slotIndex)
 function AnyAltLogger:OnEnemyEncountered()
    local unitTag = 'reticleover'
-   if GetUnitType(unitTag) == 2 then
-   --if DoesUnitExist(unitTag) and GetUnitType(unitTag) ~= nil then
-      local name = tostring(GetUnitName(unitTag))
-      local zoneIndex = tostring(GetUnitZoneIndex(unitTag))
-      local difficulty = tostring(GetUnitDifficulty(unitTag))
-      local targetKey = zoneIndex .. name .. difficulty
-      if reticleTargets[targetKey] then
-         return
-      else
-         reticleTargets[targetKey] = true
-         LogBase('LED_ENEMY_SEEN_001',
-            zoneIndex,
-            GetUnitZone(unitTag),
-            name,
-            'GetUnitDifficulty',GetUnitDifficulty(unitTag),
-            'IsUnitActivelyEngaged',IsUnitActivelyEngaged(unitTag),
-            'IsUnitAttackable',IsUnitAttackable(unitTag),
-            'HEALTH',GetReticleEffMaxPower(POWERTYPE_HEALTH),
-            --'MAGICKA',GetReticleEffMaxPower(POWERTYPE_MAGICKA),
-            --'STAMINA',GetReticleEffMaxPower(POWERTYPE_STAMINA),
-            --'HEALTH_BONUS',GetReticleEffMaxPower(POWERTYPE_HEALTH_BONUS),
-            --'DAEDRIC',GetReticleEffMaxPower(POWERTYPE_DAEDRIC),
-            --'MOUNT_STAMINA',GetReticleEffMaxPower(POWERTYPE_MOUNT_STAMINA),
-            --'ULTIMATE',GetReticleEffMaxPower(POWERTYPE_ULTIMATE),
-            --'WEREWOLF',GetReticleEffMaxPower(POWERTYPE_WEREWOLF),
-            --'INVALID',GetReticleEffMaxPower(POWERTYPE_INVALID),
-            'GetUnitType',GetUnitType(unitTag),
-            'GetUnitGender',GetUnitGender(unitTag),
-            'GetUnitClass',GetUnitClass(unitTag),
-            'GetUnitEffectiveLevel',GetUnitEffectiveLevel(unitTag),
-            'GetUnitWorldPosition',GetUnitWorldPosition(unitTag),
-            'GetUnitRawWorldPosition',GetUnitRawWorldPosition(unitTag),
-            'GetUnitXP',GetUnitXP(unitTag),
-            'GetUnitAlliance',GetUnitAlliance(unitTag),
-            'GetUnitRace',GetUnitRace(unitTag),
-            'GetUnitReaction',GetUnitReaction(unitTag),
-            '')
+   if DoesUnitExist(unitTag) then
+      local unitType = GetUnitType(unitTag)
+      local difficulty = GetUnitDifficulty(unitTag)
+      if difficulty > 0 then -- if unitType == 2 and difficulty > 0 then
+         local zoneIndex = GetUnitZoneIndex(unitTag)
+         local name = GetUnitName(unitTag)
+         local targetKey = tostring(zoneIndex) .. tostring(name) .. tostring(difficulty)
+         if reticleTargets[targetKey] then
+            return
+         else
+            reticleTargets[targetKey] = true
+            LogBase('LED_ENEMY_SEEN_001',
+               zoneIndex,
+               GetUnitZone(unitTag),
+               name,
+               'Difficulty',difficulty,
+               'IsUnitActivelyEngaged',IsUnitActivelyEngaged(unitTag),
+               'IsUnitAttackable',IsUnitAttackable(unitTag),
+               'HEALTH',GetReticleEffMaxPower(POWERTYPE_HEALTH),
+               'MAGICKA',GetReticleEffMaxPower(POWERTYPE_MAGICKA),
+               'STAMINA',GetReticleEffMaxPower(POWERTYPE_STAMINA),
+               'HEALTH_BONUS',GetReticleEffMaxPower(POWERTYPE_HEALTH_BONUS),
+               'DAEDRIC',GetReticleEffMaxPower(POWERTYPE_DAEDRIC),
+               'MOUNT_STAMINA',GetReticleEffMaxPower(POWERTYPE_MOUNT_STAMINA),
+               'ULTIMATE',GetReticleEffMaxPower(POWERTYPE_ULTIMATE),
+               'WEREWOLF',GetReticleEffMaxPower(POWERTYPE_WEREWOLF),
+               'INVALID',GetReticleEffMaxPower(POWERTYPE_INVALID),
+               'Type',unitType,
+               'Gender',GetUnitGender(unitTag),
+               'Class',GetUnitClass(unitTag),
+               'EffectiveLevel',GetUnitEffectiveLevel(unitTag),
+               'WorldPosition',GetUnitWorldPosition(unitTag),
+               'RawWorldPosition',GetUnitRawWorldPosition(unitTag),
+               'XP',GetUnitXP(unitTag),
+               'Alliance',GetUnitAlliance(unitTag),
+               'Race',GetUnitRace(unitTag),
+               'Reaction',GetUnitReaction(unitTag),
+               '')
+
+            local strPools = ""
+            for i=1,NUM_POWER_POOLS do
+               local cur, mx, effMax = GetUnitPowerInfo(reticleover, i) -- * GetUnitPowerInfo(*string* _unitTag_, *luaindex* _poolIndex_) ** _Returns:_ *integer:nilable* _type_, *integer* _current_, *integer* _max_, *integer* _effectiveMax_
+               strPools = strPools.."POOL "..tostring(i)..":"..tostring(cur)..'|'..tostring(mx)..'|'..tostring(effMax)
+            end
+            LogBase('LED_ENEMY_SEEN_POOLS_001', strPools)
+            
+            LogBase('LED_ENEMY_SEEN_EFFECT_001', GetAllUnitAttributeVisualizerEffectInfo(unitTag))
+            -- * GetAllUnitAttributeVisualizerEffectInfo(*string* _unitTag_)
+            -- ** _Uses variable returns..._
+            -- ** _Returns:_ *[UnitAttributeVisual|#UnitAttributeVisual]* _unitAttributeVisual_, *[DerivedStats|#DerivedStats]* _statType_, *[Attributes|#Attributes]* _attributeType_, *[CombatMechanicType|#CombatMechanicType]* _powerType_, *number* _value_, *number* _maxValue_
+               
+         end
+      end
+   end
+end
+EVENT_MANAGER:RegisterForEvent(AnyAltLogger.name, EVENT_RETICLE_TARGET_CHANGED, AnyAltLogger.OnEnemyEncountered)
+------------------
+
+function AnyAltLogger:Initialize()
+   --AnyAltLoggerSavedVariablesV2 = ZO_SavedVars:NewAccountWide("AnyAltLoggerSavedVariablesV2", 1, nil, {})
+   AnyAltLoggerSavedVariablesV2 = {}
+   --for k,v in pairs(EventsForLogging) do
+   --   EVENT_MANAGER:RegisterForEvent(AnyAltLogger.name, k, LogAnyEvent)
+   --end
+   --EVENT_MANAGER:RegisterForUpdate(AnyAltLogger.name, 10, OnReticleSet)
+end
+
+-- Then we create an event handler function which will be called when the "addon loaded" event
+-- occurs. We'll use this to initialize our addon after all of its resources are fully loaded.
+function AnyAltLogger.OnAddOnLoaded(event, addonName) -- The event fires each time *any* addon loads - but we only care about when our own addon loads.
+   if addonName == AnyAltLogger.name then AnyAltLogger:Initialize() end
+end
+
+-- Finally, we'll register our event handler function to be called when the proper event occurs.
+EVENT_MANAGER:RegisterForEvent(AnyAltLogger.name, EVENT_ADD_ON_LOADED, AnyAltLogger.OnAddOnLoaded)
+
+
+
 --"1637281306770`Nevira Pendragon`LED_ENEMY_SEEN_001`500`Craglorn`Twilight Matriarch`GetUnitDifficulty`0`IsUnitActivelyEngaged`false`IsUnitAttackable`false`HEALTH`15889`MAGICKA`0`STAMINA`0`HEALTH_BONUS`0`DAEDRIC`0`MOUNT_STAMINA`0`ULTIMATE`0`WEREWOLF`0`INVALID`0`GetUnitClass``GetUnitGender`1`GetUnitClass``GetUnitEffectiveLevel`66`GetUnitWorldPosition`0`GetUnitRawWorldPosition`0`GetUnitXP`0`GetUnitAlliance`1`GetUnitRace``GetUnitReaction`5`",
 --"1637281307919`Nevira Pendragon`LED_ENEMY_SEEN_001`500`Craglorn`Skavenger`GetUnitDifficulty`0`IsUnitActivelyEngaged`false`IsUnitAttackable`true`HEALTH`1`MAGICKA`0`STAMINA`0`HEALTH_BONUS`0`DAEDRIC`0`MOUNT_STAMINA`0`ULTIMATE`0`WEREWOLF`0`INVALID`0`GetUnitClass``GetUnitGender`2`GetUnitClass``GetUnitEffectiveLevel`50`GetUnitWorldPosition`0`GetUnitRawWorldPosition`0`GetUnitXP`0`GetUnitAlliance`0`GetUnitRace``GetUnitReaction`2`",
 --"1637281308004`Nevira Pendragon`LED_ENEMY_SEEN_001`500`Craglorn`Scaled Court Arcanist`GetUnitDifficulty`1`IsUnitActivelyEngaged`false`IsUnitAttackable`true`HEALTH`44805`MAGICKA`0`STAMINA`0`HEALTH_BONUS`0`DAEDRIC`0`MOUNT_STAMINA`0`ULTIMATE`0`WEREWOLF`0`INVALID`0`GetUnitClass``GetUnitGender`2`GetUnitClass``GetUnitEffectiveLevel`66`GetUnitWorldPosition`0`GetUnitRawWorldPosition`0`GetUnitXP`0`GetUnitAlliance`0`GetUnitRace``GetUnitReaction`1`",
@@ -336,27 +380,3 @@ function AnyAltLogger:OnEnemyEncountered()
 -- GetUnitName(*string* _unitTag_)
 -- GetUnitZoneIndex(*string* _unitTag_)
 -- AppendUnitName(*string* _unitTag_)
-
-      end
-   end
-end
-EVENT_MANAGER:RegisterForEvent(AnyAltLogger.name, EVENT_RETICLE_TARGET_CHANGED, AnyAltLogger.OnEnemyEncountered)
-------------------
-
-function AnyAltLogger:Initialize()
-   --AnyAltLoggerSavedVariablesV2 = ZO_SavedVars:NewAccountWide("AnyAltLoggerSavedVariablesV2", 1, nil, {})
-   AnyAltLoggerSavedVariablesV2 = {}
-   --for k,v in pairs(EventsForLogging) do
-   --   EVENT_MANAGER:RegisterForEvent(AnyAltLogger.name, k, LogAnyEvent)
-   --end
-   --EVENT_MANAGER:RegisterForUpdate(AnyAltLogger.name, 10, OnReticleSet)
-end
-
--- Then we create an event handler function which will be called when the "addon loaded" event
--- occurs. We'll use this to initialize our addon after all of its resources are fully loaded.
-function AnyAltLogger.OnAddOnLoaded(event, addonName) -- The event fires each time *any* addon loads - but we only care about when our own addon loads.
-   if addonName == AnyAltLogger.name then AnyAltLogger:Initialize() end
-end
-
--- Finally, we'll register our event handler function to be called when the proper event occurs.
-EVENT_MANAGER:RegisterForEvent(AnyAltLogger.name, EVENT_ADD_ON_LOADED, AnyAltLogger.OnAddOnLoaded)
