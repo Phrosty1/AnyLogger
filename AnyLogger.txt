@@ -3,7 +3,6 @@
 ## APIVersion: 101031
 ## AddOnVersion: 001
 ## Version: 0.01
-## DependsOn: LibPixelControl
 ## SavedVariables: AnyLoggerSavedVariablesV2
 ## DisableSavedVariablesAutoSaving 1
 
