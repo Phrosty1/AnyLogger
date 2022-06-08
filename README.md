@@ -17,3 +17,4 @@ Looking at some logs and taking the one with the heaviest ratio, this is the how
 1891.943812179461*4*60*60*8=217951927.1630739 bytes per long session
 
 In summary we should accumulate roughly 1.7 million entries (163mb) in a regular session of the four of us.
+

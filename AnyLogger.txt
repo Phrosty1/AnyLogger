@@ -4,7 +4,8 @@
 ## AddOnVersion: 001
 ## Version: 0.01
 ## DependsOn: LibPixelControl
-## SavedVariables: AnyLoggerSavedVariables
+## SavedVariables: AnyLoggerSavedVariablesV2
+## DisableSavedVariablesAutoSaving 1
 
 # blank lines are ignored
 # both '#' and ';' are comment characters
