@@ -109,3 +109,18 @@ function AnyLogger:Initialize()
    EVENT_MANAGER:RegisterForUpdate(ADDON_NAME..'Footprints', 100, Footprints)
 end
 EVENT_MANAGER:RegisterForEvent(ADDON_NAME, EVENT_ADD_ON_LOADED, function(event, addonName) if addonName == ADDON_NAME then AnyLogger:Initialize() end end)
+------------------
+-- Pre-Hook a variety of functions in CombatAlerts to log the events
+EVENT_MANAGER:RegisterForEvent(ADDON_NAME.."CombatAlerts", EVENT_PLAYER_ACTIVATED, function ()
+   ZO_PreHook(CombatAlerts,'StartBanner', function(...) AnyLogger:Log("CombatAlerts.StartBanner", ...) end)
+   ZO_PreHook(CombatAlerts,'CastAlertsStart', function(...) AnyLogger:Log("CombatAlerts.CastAlertsStart", ...) end)
+   ZO_PreHook(CombatAlerts,'CastAlertsStop', function(...) AnyLogger:Log("CombatAlerts.CastAlertsStop", ...) end)
+   ZO_PreHook(CombatAlerts,'DisableBanner', function(...) AnyLogger:Log("CombatAlerts.DisableBanner", ...) end)
+   ZO_PreHook(CombatAlerts,'Alert', function(...) AnyLogger:Log("CombatAlerts.Alert", ...) end)
+   ZO_PreHook(CombatAlerts,'AlertCast', function(...) AnyLogger:Log("CombatAlerts.AlertCast", ...) end)
+   ZO_PreHook(CombatAlerts,'ScreenBorderEnable', function(...) AnyLogger:Log("CombatAlerts.ScreenBorderEnable", ...) end)
+   ZO_PreHook(CombatAlerts,'ScreenBorderDisable', function(...) AnyLogger:Log("CombatAlerts.ScreenBorderDisable", ...) end)
+   ZO_PreHook(CombatAlerts,'AlertBorder', function(...) AnyLogger:Log("CombatAlerts.AlertBorder", ...) end)
+   ZO_PreHook(CombatAlerts,'AlertChat', function(...) AnyLogger:Log("CombatAlerts.AlertChat", ...) end)
+   ZO_PreHook(CombatAlerts,'PlaySounds', function(...) AnyLogger:Log("CombatAlerts.PlaySounds", ...) end)
+end)
