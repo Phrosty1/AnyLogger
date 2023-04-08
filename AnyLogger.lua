@@ -65,7 +65,25 @@ local function LogAnyEvent(eventid, ...)
       LogBase(eventname, ...)
    end
 end
----
+-------
+-- Public API
+AnyLogger.LoggerClass = {
+   addonName = "Not_Specified",
+   -- Note to Dowell: "subType" is the same thing as "loc" in your Log function
+   Debug = function(self, subType, ...) if LibBOGGS.isTestPlayer then LogBase(self.addonName.."-"..subType.."|Debug", ...) end end, -- Only written for test users; Oldest entries purged if raw log files get too big some day
+   DebugAll = function(self, subType, ...) LogBase(self.addonName.."-"..subType.."|Debug", ...) end, -- Oldest entries purged if raw log files get too big some day
+   Curio = function(self, subType, ...) LogBase(self.addonName.."-"..subType.."|Curio", ...) end, -- Kept forever unless we run out of space and Debug has already been purged; Might be useful information; Basically, something we are CURIOus about
+   Info = function(self, subType, ...) LogBase(self.addonName.."-"..subType.."|Info", ...) end, -- Kept forever; Should have a reasonably chance of being useful information
+   Warn = function(self, subType, ...) LogBase(self.addonName.."-"..subType.."|Warn", ...) end, -- Kept forever; Generates alert messages to Tommy/Brian when logs are parsed by batch process each evening
+   Error = function(self, subType, ...) LogBase(self.addonName.."-"..subType.."|Error", ...)  end, -- Kept forever; Generates on-screen alert messages to players and same alert to Tommy/Brian when logs are parsed by batch process each evening
+   New = function(self, addonName)  -- Constructor; boilerplate code (don't worry about it)
+      local o = {}
+      setmetatable(o, self)
+      self.__index = self
+      o.addonName = addonName
+      return o
+   end,
+}
 
 local GetGameCameraInteractableActionInfo = GetGameCameraInteractableActionInfo
 local CanInteractWithItem = CanInteractWithItem -- currently called wrong but still works * CanInteractWithItem(*[Bag|#Bag]* _bagId_, *integer* _slotIndex_) ** _Returns:_ *bool* _canInteract_
