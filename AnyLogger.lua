@@ -65,7 +65,23 @@ local function LogAnyEvent(eventid, ...)
       LogBase(eventname, ...)
    end
 end
----
+-------
+-- Public API
+AnyLogger.LoggerClass = {
+   addonName = "Not_Specified",
+   Debug = function(self, ...) if LibBOGGS.isTestPlayer then LogBase(self.addonName.."|Debug", ...) end end, -- Only written for test users; Oldest entries purged if raw log files get too big some day
+   DebugAll = function(self, ...) LogBase(self.addonName.."|Debug", ...) end, -- Oldest entries purged if raw log files get too big some day
+   Info = function(self, ...) LogBase(self.addonName.."|Info", ...) end, -- Kept forever; Should have a reasonably chance of being useful information
+   Warn = function(self, ...) LogBase(self.addonName.."|Warn", ...) end, -- Kept forever; Generates alert messages to Tommy/Brian when logs are parsed by batch process each evening
+   Error = function(self, ...) LogBase(self.addonName.."|Error", ...)  end, -- Kept forever; Generates on-screen alert messages to players and same alert to Tommy/Brian when logs are parsed by batch process each evening
+   New = function(self, addonName)  -- Constructor
+      local o = {}
+      setmetatable(o, self)
+      self.__index = self
+      o.addonName = addonName
+      return o
+   end,
+}
 
 local GetGameCameraInteractableActionInfo = GetGameCameraInteractableActionInfo
 local CanInteractWithItem = CanInteractWithItem -- currently called wrong but still works * CanInteractWithItem(*[Bag|#Bag]* _bagId_, *integer* _slotIndex_) ** _Returns:_ *bool* _canInteract_
