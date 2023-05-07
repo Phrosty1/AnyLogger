@@ -100,6 +100,7 @@ end
 ------------------
 function AnyLogger:Initialize()
    AnyLoggerSavedVariablesV2 = {}
+   LogBase("GetAPIVersion", GetAPIVersion())
    EVENT_MANAGER:RegisterForAllEvents(ADDON_NAME..'Log', LogAnyEvent)
    EVENT_MANAGER:RegisterForUpdate(ADDON_NAME, 10, OnReticleSet)
    EVENT_MANAGER:RegisterForUpdate(ADDON_NAME..'Footprints', 100, Footprints)
