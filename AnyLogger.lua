@@ -107,12 +107,16 @@ end
 EVENT_MANAGER:RegisterForEvent(ADDON_NAME, EVENT_ADD_ON_LOADED, function(event, addonName) if addonName == ADDON_NAME then AnyLogger:Initialize() end end)
 ------------------
 -- Pre-Hook a variety of functions in CombatAlerts to log the events
+local CombatAlertsHasBeenPrehooked = false
 EVENT_MANAGER:RegisterForEvent(ADDON_NAME.."CombatAlerts", EVENT_PLAYER_ACTIVATED, function ()
-   ZO_PreHook(CombatAlerts,'StartBanner', function(...) AnyLogger:Log("CombatAlerts.StartBanner", ...) end)
-   ZO_PreHook(CombatAlerts,'CastAlertsStart', function(...) AnyLogger:Log("CombatAlerts.CastAlertsStart", ...) end)
-   ZO_PreHook(CombatAlerts,'Alert', function(...) AnyLogger:Log("CombatAlerts.Alert", ...) end)
-   ZO_PreHook(CombatAlerts,'AlertCast', function(...) AnyLogger:Log("CombatAlerts.AlertCast", ...) end)
-   ZO_PreHook(CombatAlerts,'ScreenBorderEnable', function(...) AnyLogger:Log("CombatAlerts.ScreenBorderEnable", ...) end)
-   ZO_PreHook(CombatAlerts,'AlertBorder', function( enable, duration, color ) if enable then AnyLogger:Log("CombatAlerts.AlertBorder", enable, duration, color) end end)
-   ZO_PreHook(CombatAlerts,'AlertChat', function(...) AnyLogger:Log("CombatAlerts.AlertChat", ...) end)
+   if CombatAlerts and not CombatAlertsHasBeenPrehooked then
+      ZO_PreHook(CombatAlerts,'StartBanner', function(...) AnyLogger:Log("CombatAlerts.StartBanner", ...) end)
+      ZO_PreHook(CombatAlerts,'CastAlertsStart', function(...) AnyLogger:Log("CombatAlerts.CastAlertsStart", ...) end)
+      ZO_PreHook(CombatAlerts,'Alert', function(...) AnyLogger:Log("CombatAlerts.Alert", ...) end)
+      ZO_PreHook(CombatAlerts,'AlertCast', function(...) AnyLogger:Log("CombatAlerts.AlertCast", ...) end)
+      ZO_PreHook(CombatAlerts,'ScreenBorderEnable', function(...) AnyLogger:Log("CombatAlerts.ScreenBorderEnable", ...) end)
+      ZO_PreHook(CombatAlerts,'AlertBorder', function( enable, duration, color ) if enable then AnyLogger:Log("CombatAlerts.AlertBorder", enable, duration, color) end end)
+      ZO_PreHook(CombatAlerts,'AlertChat', function(...) AnyLogger:Log("CombatAlerts.AlertChat", ...) end)
+      CombatAlertsHasBeenPrehooked = true
+   end
 end)
