@@ -1,6 +1,6 @@
 ## Title: AnyLogger
 ## Author: Phrosty1
-## APIVersion: 101031
+## APIVersion: 101040 101041
 ## AddOnVersion: 001
 ## Version: 0.01
 ## SavedVariables: AnyLoggerSavedVariablesV2
